@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Hockey Player Match Game</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f4f4f4;
+      text-align: center;
+      padding: 30px;
+    }
+    h2 {
+      margin-bottom: 20px;
+    }
+    .game-container, .team-select, .team-clue {
+      display: none;
+    }
+    .active {
+      display: block;
+    }
+    .images, .names {
+      display: flex;
+      justify-content: center;
+      flex-wrap: wrap;
+      gap: 20px;
+      margin-bottom: 20px;
+    }
+    .name-box, .image-box {
+      border: 2px dashed #ccc;
+      padding: 10px;
+      min-width: 100px;
+      min-height: 100px;
+    }
+    .image-box img {
+      width: 100px;
+      height: 100px;
+      object-fit: cover;
+    }
+    .button {
+      padding: 10px 20px;
+      background: #007bff;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      margin-top: 20px;
+    }
+    .clue {
+      font-size: 18px;
+      font-weight: bold;
+      margin-top: 20px;
+    }
+    .red { color: red; }
+    .blue { color: blue; }
+    .green { color: green; }
+    .yellow { color: goldenrod; }
+  </style>
+</head>
+<body>
+  <h2>Match the Hockey Players to Their Names</h2>
+
+  <div class="game-container active" id="game">
+    <div class="images" id="images"></div>
+    <div class="names" id="names"></div>
+    <button class="button" onclick="checkAnswers()">Check Answers</button>
+    <div id="message"></div>
+  </div>
+
+  <div class="team-select" id="teamSelect">
+    <h3>Choose Your Team</h3>
+    <button class="button red" onclick="showClue('red')">Red Team</button>
+    <button class="button blue" onclick="showClue('blue')">Blue Team</button>
+    <button class="button green" onclick="showClue('green')">Green Team</button>
+    <button class="button yellow" onclick="showClue('yellow')">Yellow Team</button>
+  </div>
+
+  <div class="team-clue" id="teamClue"></div>
+
+  <script>
+    const imagesData = [
+      { name: 'Matins Laviņš', src: 'img/8fd2cc7a-b120-4d4b-97bd-8f182725f888.png' },
+      { name: 'Kristers Gudļevskis', src: 'img/6caa7906-37fc-48fb-aea9-878e30a9c5e9.png' },
+      { name: 'Oskars Cibuļskis', src: 'img/7a789fe5-fc49-44d6-9c0b-6d71d217153d.png' }
+    ];
+
+    function shuffle(arr) {
+      return arr.sort(() => Math.random() - 0.5);
+    }
+
+    const imagesDiv = document.getElementById("images");
+    const namesDiv = document.getElementById("names");
+
+    function setupGame() {
+      const shuffled = shuffle([...imagesData]);
+      imagesDiv.innerHTML = '';
+      namesDiv.innerHTML = '';
+
+      shuffled.forEach((item, i) => {
+        const imgBox = document.createElement("div");
+        imgBox.classList.add("image-box");
+        imgBox.draggable = true;
+        imgBox.id = `img-${i}`;
+        imgBox.dataset.name = item.name;
+        imgBox.innerHTML = `<img src="${item.src}" alt="${item.name}">`;
+        imgBox.addEventListener("dragstart", dragStart);
+        imagesDiv.appendChild(imgBox);
+      });
+
+      const nameList = shuffle([...imagesData]);
+      nameList.forEach((item, i) => {
+        const nameBox = document.createElement("div");
+        nameBox.classList.add("name-box");
+        nameBox.dataset.name = item.name;
+        nameBox.addEventListener("dragover", dragOver);
+        nameBox.addEventListener("drop", drop);
+        nameBox.innerHTML = item.name;
+        namesDiv.appendChild(nameBox);
+      });
+    }
+
+    let draggedItem = null;
+
+    function dragStart(e) {
+      draggedItem = e.currentTarget;
+    }
+
+    function dragOver(e) {
+      e.preventDefault();
+    }
+
+    function drop(e) {
+      e.preventDefault();
+      if (draggedItem) {
+        e.currentTarget.innerHTML = '';
+        e.currentTarget.appendChild(draggedItem);
+      }
+    }
+
+    function checkAnswers() {
+      const nameBoxes = document.querySelectorAll('.name-box');
+      let correct = 0;
+      nameBoxes.forEach(box => {
+        const img = box.querySelector('img');
+        if (img && box.dataset.name === box.querySelector('div').dataset.name) {
+          correct++;
+        }
+      });
+
+      if (correct === imagesData.length) {
+        document.getElementById("game").classList.remove("active");
+        document.getElementById("teamSelect").classList.add("active");
+      } else {
+        document.getElementById("message").innerText = "❌ Some matches are incorrect. Try again!";
+        setupGame();
+      }
+    }
+
+    function showClue(team) {
+      const clues = {
+        red: "🔴 Red Team Clue: Placeholder clue for Red Team.",
+        blue: "🔵 Blue Team Clue: Placeholder clue for Blue Team.",
+        green: "🟢 Green Team Clue: Placeholder clue for Green Team.",
+        yellow: "🟡 Yellow Team Clue: Placeholder clue for Yellow Team."
+      };
+
+      document.getElementById("teamSelect").classList.remove("active");
+      const clueBox = document.getElementById("teamClue");
+      clueBox.classList.add("active", team);
+      clueBox.innerText = clues[team];
+    }
+
+    setupGame();
+  </script>
+</body>
+</html>
