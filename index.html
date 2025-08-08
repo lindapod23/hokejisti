@@ -117,12 +117,13 @@
       { name: 'Oskars Cibuļskis', src: 'img/7a789fe5-fc49-44d6-9c0b-6d71d217153d.png' }
     ];
 
+    const imagesDiv = document.getElementById("images");
+    const namesDiv = document.getElementById("names");
+    let draggedItem = null;
+
     function shuffle(arr) {
       return arr.sort(() => Math.random() - 0.5);
     }
-
-    const imagesDiv = document.getElementById("images");
-    const namesDiv = document.getElementById("names");
 
     function setupGame() {
       const shuffled = shuffle([...imagesData]);
@@ -130,6 +131,7 @@
       namesDiv.innerHTML = '';
       document.getElementById("message").innerText = '';
 
+      // Setup images
       shuffled.forEach((item, i) => {
         const imgBox = document.createElement("div");
         imgBox.classList.add("image-box");
@@ -141,19 +143,18 @@
         imagesDiv.appendChild(imgBox);
       });
 
+      // Setup name boxes
       const nameList = shuffle([...imagesData]);
-      nameList.forEach((item, i) => {
+      nameList.forEach((item) => {
         const nameBox = document.createElement("div");
         nameBox.classList.add("name-box");
         nameBox.dataset.name = item.name;
         nameBox.addEventListener("dragover", dragOver);
         nameBox.addEventListener("drop", drop);
-        nameBox.innerHTML = item.name;
+        nameBox.innerText = item.name;
         namesDiv.appendChild(nameBox);
       });
     }
-
-    let draggedItem = null;
 
     function dragStart(e) {
       draggedItem = e.currentTarget;
@@ -165,11 +166,23 @@
 
     function drop(e) {
       e.preventDefault();
-      if (draggedItem && e.currentTarget.children.length === 1) {
+      // Prevent adding more than one image-box
+      const existing = e.currentTarget.querySelector('.image-box');
+      if (!existing && draggedItem) {
         e.currentTarget.appendChild(draggedItem);
         draggedItem = null;
       }
     }
+
+    // Allow dragging back to image area
+    imagesDiv.addEventListener("dragover", dragOver);
+    imagesDiv.addEventListener("drop", function (e) {
+      e.preventDefault();
+      if (draggedItem) {
+        imagesDiv.appendChild(draggedItem);
+        draggedItem = null;
+      }
+    });
 
     function checkAnswers() {
       const nameBoxes = document.querySelectorAll('.name-box');
