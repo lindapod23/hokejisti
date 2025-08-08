@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Hockey Player Match Game</title>
+  <title>Hokejistu Atpazīšanas Spēle</title>
   <style>
     body {
       font-family: Arial, sans-serif;
@@ -11,15 +11,19 @@
       text-align: center;
       padding: 30px;
     }
+
     h2 {
       margin-bottom: 20px;
     }
+
     .game-container, .team-select, .team-clue {
       display: none;
     }
+
     .active {
       display: block;
     }
+
     .images, .names {
       display: flex;
       justify-content: center;
@@ -27,19 +31,20 @@
       gap: 20px;
       margin-bottom: 20px;
     }
+
     .name-box, .image-box {
       border: 2px dashed #ccc;
       padding: 10px;
       min-width: 100px;
       min-height: 100px;
     }
+
     .image-box img {
       width: 100px;
       height: 100px;
       object-fit: cover;
     }
 
-    /* ✅ Updated button styling */
     .button {
       padding: 10px 20px;
       background: white;
@@ -50,19 +55,21 @@
       font-weight: bold;
     }
 
-    /* ✅ Team color classes for text and border */
     .red {
       color: red;
       border-color: red;
     }
+
     .blue {
       color: blue;
       border-color: blue;
     }
+
     .green {
       color: green;
       border-color: green;
     }
+
     .yellow {
       color: goldenrod;
       border-color: goldenrod;
@@ -72,6 +79,7 @@
       font-size: 18px;
       font-weight: bold;
       margin-top: 20px;
+      white-space: pre-line;
     }
   </style>
 </head>
@@ -93,7 +101,7 @@
     <button class="button yellow" onclick="showClue('yellow')">Dzeltenā komanda</button>
   </div>
 
-  <div class="team-clue" id="teamClue"></div>
+  <div class="team-clue clue" id="teamClue"></div>
 
   <script>
     const imagesData = [
@@ -120,14 +128,15 @@
       const shuffled = shuffle([...imagesData]);
       imagesDiv.innerHTML = '';
       namesDiv.innerHTML = '';
+      document.getElementById("message").innerText = '';
 
       shuffled.forEach((item, i) => {
         const imgBox = document.createElement("div");
         imgBox.classList.add("image-box");
         imgBox.draggable = true;
-        imgBox.id = img-${i};
+        imgBox.id = `img-${i}`;
         imgBox.dataset.name = item.name;
-        imgBox.innerHTML = <img src="${item.src}" alt="${item.name}">;
+        imgBox.innerHTML = `<img src="${item.src}" alt="${item.name}">`;
         imgBox.addEventListener("dragstart", dragStart);
         imagesDiv.appendChild(imgBox);
       });
@@ -156,18 +165,19 @@
 
     function drop(e) {
       e.preventDefault();
-      if (draggedItem) {
-        e.currentTarget.innerHTML = '';
+      if (draggedItem && e.currentTarget.children.length === 1) {
         e.currentTarget.appendChild(draggedItem);
+        draggedItem = null;
       }
     }
 
     function checkAnswers() {
       const nameBoxes = document.querySelectorAll('.name-box');
       let correct = 0;
+
       nameBoxes.forEach(box => {
-        const img = box.querySelector('img');
-        if (img && box.dataset.name === box.querySelector('div').dataset.name) {
+        const imgBox = box.querySelector('.image-box');
+        if (imgBox && box.dataset.name === imgBox.dataset.name) {
           correct++;
         }
       });
@@ -176,22 +186,24 @@
         document.getElementById("game").classList.remove("active");
         document.getElementById("teamSelect").classList.add("active");
       } else {
-        document.getElementById("message").innerText = "❌ Some matches are incorrect. Try again!";
-        setupGame();
+        document.getElementById("message").innerText = "❌ Daži neatbilst. Mēģini vēlreiz!";
+        setTimeout(() => {
+          setupGame();
+        }, 1500);
       }
     }
 
     function showClue(team) {
       const clues = {
-        red: "🔴 Red Team Clue: Placeholder clue for Red Team.",
-        blue: "🔵 Blue Team Clue: Placeholder clue for Blue Team.",
-        green: "🟢 Green Team Clue: Placeholder clue for Green Team.",
-        yellow: "🟡 Yellow Team Clue: Placeholder clue for Yellow Team."
+        red: "🔴 Super! Tagad varam doties tālāk!\n\nKur saule spīd pat lietainā dienā,\nKur dzīvesprieks ir arī brīvdienā,\nKur dejo un dzied gan lieli, gan mazi,\nTur atradīsi nākamo ceļojuma pieturu.",
+        blue: "🔵 Super! Tagad varam doties tālāk!\n\nKur saule spīd pat lietainā dienā,\nKur dzīvesprieks ir arī brīvdienā,\nKur dejo un dzied gan lieli, gan mazi,\nTur atradīsi nākamo ceļojuma pieturu.",
+        green: "🟢 Super! Tagad varam doties tālāk!\n\nKur saule spīd pat lietainā dienā,\nKur dzīvesprieks ir arī brīvdienā,\nKur dejo un dzied gan lieli, gan mazi,\nTur atradīsi nākamo ceļojuma pieturu.",
+        yellow: "🟡 Super! Tagad varam doties tālāk!\n\nKur saule spīd pat lietainā dienā,\nKur dzīvesprieks ir arī brīvdienā,\nKur dejo un dzied gan lieli, gan mazi,\nTur atradīsi nākamo ceļojuma pieturu."
       };
 
       document.getElementById("teamSelect").classList.remove("active");
       const clueBox = document.getElementById("teamClue");
-      clueBox.classList.add("active", team);
+      clueBox.className = "team-clue clue active " + team;
       clueBox.innerText = clues[team];
     }
 
